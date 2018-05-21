@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package books;
+package books.repository;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -27,109 +26,115 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import static org.hamcrest.Matchers.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-public class ApplicationTests {
+public class BookStatusRepositoryTest {
 
 	@Autowired
 	private MockMvc mockMvc;
 
 	@Autowired
-	private BookRepository bookRepository;
+	private BookStatusRepository bookStatusRepository;
 
 	@Before
 	public void deleteAllBeforeTests() throws Exception {
-		bookRepository.deleteAll();
+		bookStatusRepository.deleteAll();
 	}
 
 	@Test
 	public void shouldReturnRepositoryIndex() throws Exception {
 
 		mockMvc.perform(get("/")).andDo(print()).andExpect(status().isOk()).andExpect(
-				jsonPath("$._links.books").exists());
+				jsonPath("$._links.bookstatus").exists());
 	}
 
 	@Test
 	public void shouldCreateEntity() throws Exception {
 
-		mockMvc.perform(post("/books").content(
-				"{\"name\": \"The lord of the rings\"}")).andExpect(
+		mockMvc.perform(post("/bookstatus").content(
+				"{\"description\": \"Available\"}")).andExpect(
 						status().isCreated()).andExpect(
-								header().string("Location", containsString("books/")));
+								header().string("Location", containsString("bookstatus/")));
 	}
 
 	@Test
 	public void shouldRetrieveEntity() throws Exception {
 
-		MvcResult mvcResult = mockMvc.perform(post("/books").content(
-				"{\"name\": \"The lord of the rings\"}")).andExpect(
+		MvcResult mvcResult = mockMvc.perform(post("/bookstatus").content(
+				"{\"description\": \"Available\"}")).andExpect(
 						status().isCreated()).andReturn();
 
 		String location = mvcResult.getResponse().getHeader("Location");
 		mockMvc.perform(get(location)).andExpect(status().isOk()).andExpect(
-				jsonPath("$.name").value("The lord of the rings"));
+				jsonPath("$.description").value("Available"));
 	}
 
 	@Test
 	public void shouldQueryEntity() throws Exception {
 
-		mockMvc.perform(post("/books").content(
-				"{ \"name\": \"The lord of the rings\"}")).andExpect(
+		mockMvc.perform(post("/bookstatus").content(
+				"{ \"description\": \"Available\"}")).andExpect(
 						status().isCreated());
 
 		mockMvc.perform(
-				get("/books/search/findByName?name={name}", "The lord of the rings")).andExpect(
+				get("/bookstatus/search/findByDescription?description={description}", "Available")).andExpect(
 						status().isOk()).andExpect(
-								jsonPath("$._embedded.books[0].name").value(
-										"The lord of the rings"));
+								jsonPath("$._embedded.bookstatus[0].description").value(
+										"Available"));
 	}
 
 	@Test
 	public void shouldUpdateEntity() throws Exception {
 
-		MvcResult mvcResult = mockMvc.perform(post("/books").content(
-				"{\"name\": \"The lord of the rings\"}")).andExpect(
+		MvcResult mvcResult = mockMvc.perform(post("/bookstatus").content(
+				"{\"description\": \"Available\"}")).andExpect(
 						status().isCreated()).andReturn();
 
 		String location = mvcResult.getResponse().getHeader("Location");
 
 		mockMvc.perform(put(location).content(
-				"{\"name\": \"The return of the king\"}")).andExpect(
+				"{\"description\": \"In library\"}")).andExpect(
 						status().isNoContent());
 
 		mockMvc.perform(get(location)).andExpect(status().isOk()).andExpect(
-				jsonPath("$.name").value("The return of the king"));
+				jsonPath("$.description").value("In library"));
 	}
 
 	@Test
 	public void shouldPartiallyUpdateEntity() throws Exception {
 
-		MvcResult mvcResult = mockMvc.perform(post("/books").content(
-				"{\"name\": \"The lord of the rings\"}")).andExpect(
+		MvcResult mvcResult = mockMvc.perform(post("/bookstatus").content(
+				"{\"description\": \"Available\"}")).andExpect(
 						status().isCreated()).andReturn();
 
 		String location = mvcResult.getResponse().getHeader("Location");
 
 		mockMvc.perform(
-				patch(location).content("{\"name\": \"The return of the king\"}")).andExpect(
+				patch(location).content("{\"description\": \"In library\"}")).andExpect(
 						status().isNoContent());
 
 		mockMvc.perform(get(location)).andExpect(status().isOk()).andExpect(
-				jsonPath("$.name").value("The return of the king")).andExpect(
-						jsonPath("$.name").value("The return of the king"));
+				jsonPath("$.description").value("In library")).andExpect(
+						jsonPath("$.description").value("In library"));
 	}
 
 	@Test
 	public void shouldDeleteEntity() throws Exception {
 
-		MvcResult mvcResult = mockMvc.perform(post("/books").content(
-				"{ \"name\": \"The lord of the rings\"}")).andExpect(
+		MvcResult mvcResult = mockMvc.perform(post("/bookstatus").content(
+				"{ \"description\": \"Available\"}")).andExpect(
 						status().isCreated()).andReturn();
 
 		String location = mvcResult.getResponse().getHeader("Location");

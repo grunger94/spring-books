@@ -6,22 +6,22 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 @Entity
-public class BookStatus {
+public class BookUnavailabilityCause {
 
-    static final String ID_COLUMN = "status_id";
+    static final String ID_COLUMN = "unavailability_cause_id";
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    private String description;
+    private String cause;
 
-    public String getDescription() {
-        return description;
+    public String getCause() {
+        return cause;
     }
 
-    public void getDescription(String description) {
-        this.description = description;
+    public void setCause(String cause) {
+        this.cause = cause;
     }
 
 }

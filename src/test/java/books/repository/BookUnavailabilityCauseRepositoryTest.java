@@ -16,7 +16,6 @@
 
 package books.repository;
 
-import books.entity.Book;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,7 +26,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import static books.repository.BookStatusRepository.PATH;
+import static books.repository.BookUnavailabilityCauseRepository.PATH;
 import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -42,20 +41,20 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-public class BookStatusRepositoryTest {
+public class BookUnavailabilityCauseRepositoryTest {
 
-	private String bookStatus = "Available";
-	private String updatedBookStatus = "Unavailable";
+	private String causeOfUnavailability = "stolen";
+	private String updatedCauseOfUnavailability = "lost";
 
 	@Autowired
 	private MockMvc mockMvc;
 
 	@Autowired
-	private BookStatusRepository bookStatusRepository;
+	private BookUnavailabilityCauseRepository bookUnavailabilityCauseRepository;
 
 	@Before
 	public void deleteAllBeforeTests() throws Exception {
-		bookStatusRepository.deleteAll();
+		bookUnavailabilityCauseRepository.deleteAll();
 	}
 
 	@Test
@@ -69,7 +68,7 @@ public class BookStatusRepositoryTest {
 	public void shouldCreateEntity() throws Exception {
 
 		mockMvc.perform(post("/" + PATH).content(
-				"{\"description\": \"" + bookStatus + "\"}")).andExpect(
+				"{\"cause\": \"" + causeOfUnavailability + "\"}")).andExpect(
 						status().isCreated()).andExpect(
 								header().string("Location", containsString(PATH + "/")));
 	}
@@ -78,68 +77,68 @@ public class BookStatusRepositoryTest {
 	public void shouldRetrieveEntity() throws Exception {
 
 		MvcResult mvcResult = mockMvc.perform(post("/" + PATH).content(
-				"{\"description\": \"" + bookStatus + "\"}")).andExpect(
+				"{\"cause\": \"" + causeOfUnavailability + "\"}")).andExpect(
 						status().isCreated()).andReturn();
 
 		String location = mvcResult.getResponse().getHeader("Location");
 		mockMvc.perform(get(location)).andExpect(status().isOk()).andExpect(
-				jsonPath("$.description").value(bookStatus));
+				jsonPath("$.cause").value(causeOfUnavailability));
 	}
 
 	@Test
 	public void shouldQueryEntity() throws Exception {
 
 		mockMvc.perform(post("/" + PATH).content(
-				"{ \"description\": \"" + bookStatus + "\"}")).andExpect(
+				"{ \"cause\": \"" + causeOfUnavailability + "\"}")).andExpect(
 						status().isCreated());
 
 		mockMvc.perform(
-				get("/" + PATH + "/search/findByDescription?description={description}", bookStatus)).andExpect(
+				get("/" + PATH + "/search/findByCause?cause={cause}", causeOfUnavailability)).andExpect(
 						status().isOk()).andExpect(
-								jsonPath("$._embedded." + PATH + "[0].description").value(
-										bookStatus));
+								jsonPath("$._embedded." + PATH + "[0].cause").value(
+										causeOfUnavailability));
 	}
 
 	@Test
 	public void shouldUpdateEntity() throws Exception {
 
 		MvcResult mvcResult = mockMvc.perform(post("/" + PATH).content(
-				"{\"description\": \"" + bookStatus + "\"}")).andExpect(
+				"{\"cause\": \"" + causeOfUnavailability + "\"}")).andExpect(
 						status().isCreated()).andReturn();
 
 		String location = mvcResult.getResponse().getHeader("Location");
 
 		mockMvc.perform(put(location).content(
-				"{\"description\": \"" + updatedBookStatus + "\"}")).andExpect(
+				"{\"cause\": \"" + updatedCauseOfUnavailability + "\"}")).andExpect(
 						status().isNoContent());
 
 		mockMvc.perform(get(location)).andExpect(status().isOk()).andExpect(
-				jsonPath("$.description").value(updatedBookStatus));
+				jsonPath("$.cause").value(updatedCauseOfUnavailability));
 	}
 
 	@Test
 	public void shouldPartiallyUpdateEntity() throws Exception {
 
 		MvcResult mvcResult = mockMvc.perform(post("/" + PATH).content(
-				"{\"description\": \"" + bookStatus + "\"}")).andExpect(
+				"{\"cause\": \"" + causeOfUnavailability + "\"}")).andExpect(
 						status().isCreated()).andReturn();
 
 		String location = mvcResult.getResponse().getHeader("Location");
 
 		mockMvc.perform(
-				patch(location).content("{\"description\": \"" + updatedBookStatus +"\"}")).andExpect(
+				patch(location).content("{\"cause\": \"" + updatedCauseOfUnavailability + "\"}")).andExpect(
 						status().isNoContent());
 
 		mockMvc.perform(get(location)).andExpect(status().isOk()).andExpect(
-				jsonPath("$.description").value(updatedBookStatus)).andExpect(
-						jsonPath("$.description").value(updatedBookStatus));
+				jsonPath("$.cause").value(updatedCauseOfUnavailability)).andExpect(
+						jsonPath("$.cause").value(updatedCauseOfUnavailability));
 	}
 
 	@Test
 	public void shouldDeleteEntity() throws Exception {
 
 		MvcResult mvcResult = mockMvc.perform(post("/" + PATH).content(
-				"{ \"description\": \"" + bookStatus + "\"}")).andExpect(
+				"{ \"cause\": \"" + causeOfUnavailability + "\"}")).andExpect(
 						status().isCreated()).andReturn();
 
 		String location = mvcResult.getResponse().getHeader("Location");

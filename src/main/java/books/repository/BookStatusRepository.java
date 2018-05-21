@@ -7,8 +7,13 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import java.util.List;
 
-@RepositoryRestResource(collectionResourceRel = BookStatus.PATH, path = BookStatus.PATH)
+import static books.repository.BookStatusRepository.PATH;
+
+@RepositoryRestResource(collectionResourceRel = PATH, path = PATH)
 public interface BookStatusRepository extends PagingAndSortingRepository<BookStatus, Long> {
 
+    String PATH = "bookstatus";
+
     List<BookStatus> findByDescription(@Param("description") String description);
+
 }
